@@ -107,4 +107,14 @@ public class DynArray<T> {
         return len == 0;
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < len; i++) {
+            sb.append(arr[i].toString());
+            if (i + 1 != len)
+                sb.append(" ");
+        }
+        return sb.toString();
+    }
+
 }
