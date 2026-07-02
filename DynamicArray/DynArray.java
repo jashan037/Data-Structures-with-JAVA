@@ -91,4 +91,20 @@ public class DynArray<T> {
         return (T) arr[n];
     }
 
+    public int indexOf(Object o) {
+        for (int i = 0; i < len; i++) {
+            if (arr[i].equals(o))
+                return i;
+        }
+        return -1;
+    }
+
+    public boolean contains(Object o) {
+        return indexOf(o) != -1;
+    }
+
+    public boolean isEmpty() {
+        return len == 0;
+    }
+
 }
