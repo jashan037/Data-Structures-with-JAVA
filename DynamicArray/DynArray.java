@@ -5,6 +5,7 @@ public class DynArray<T> {
     private int len = 0;
     Object[] arr;
 
+    // Constructors
     public DynArray() {
         arr = new Object[cap];
     }
@@ -16,11 +17,18 @@ public class DynArray<T> {
         arr = new Object[cap];
     }
 
+    // Cap and Size
     public int getCap() {
         return cap;
     }
 
+    public int size() {
+        return len;
+    }
+
     public void fit() {
+        if (len <= 0)
+            len = 2;
         Object[] narr = new Object[len];
         for (int i = 0; i < len; i++) {
             narr[i] = arr[i];
@@ -29,6 +37,7 @@ public class DynArray<T> {
         cap = len;
     }
 
+    // Internal Modifications
     private void doble() {
         Object[] narr = new Object[cap * 2];
         for (int i = 0; i < len; i++) {
@@ -38,6 +47,7 @@ public class DynArray<T> {
         cap *= 2;
     }
 
+    // Print
     public void print() {
         for (int i = 0; i < len; i++) {
             if (i != len - 1)
@@ -47,6 +57,7 @@ public class DynArray<T> {
         }
     }
 
+    // Modifications
     public void add(T val) {
         if (len == cap)
             doble();
@@ -54,8 +65,30 @@ public class DynArray<T> {
     }
 
     @SuppressWarnings("unchecked")
+    public void add(T... val) {
+        while (len + val.length - 1 >= cap)
+            doble();
+        for (T i : val)
+            arr[len++] = i;
+    }
+
+    @SuppressWarnings("unchecked")
     public T pop() {
         return (T) arr[len--];
+    }
+
+    public void clear() {
+        len = 2;
+        fit();
+        len = 0;
+    }
+
+    // Getters
+    @SuppressWarnings("unchecked")
+    public T get(int n) {
+        if (n < 0 || n >= len)
+            throw new IllegalArgumentException("Illegal Index " + n);
+        return (T) arr[n];
     }
 
 }
