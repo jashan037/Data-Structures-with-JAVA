@@ -10,8 +10,23 @@ public class DynArray<T> {
     }
 
     public DynArray(int n) {
+        if (n < 0)
+            throw new IllegalArgumentException("Illegal Capacity " + n);
         cap = n;
         arr = new Object[cap];
+    }
+
+    public int getCap() {
+        return cap;
+    }
+
+    public void fit() {
+        Object[] narr = new Object[len];
+        for (int i = 0; i < len; i++) {
+            narr[i] = arr[i];
+        }
+        arr = narr;
+        cap = len;
     }
 
     private void doble() {
@@ -37,4 +52,10 @@ public class DynArray<T> {
             doble();
         arr[len++] = val;
     }
+
+    @SuppressWarnings("unchecked")
+    public T pop() {
+        return (T) arr[len--];
+    }
+
 }
