@@ -27,15 +27,33 @@ public class LinkedList<T> {
     public LinkedList(T val) {
         Head = new Node(val);
         Tail = Head;
+        size++;
     }
 
     // modification
     public void add(T val) {
-        if (Tail == null)
-            Tail = new Node(val);
-        else {
+        if (Tail == null) {
+            Head.val = val;
+            Tail = Head;
+            size++;
+        } else {
             Tail.next = new Node(val);
             Tail = Tail.next;
+            size++;
+        }
+    }
+
+    // Prints
+    public void print() {
+        Node itr = new Node();
+        itr = Head;
+        while (itr != null) {
+            System.out.print(itr.val);
+            if (itr.next != null)
+                System.out.print(" ");
+            else
+                System.out.println();
+            itr = itr.next;
         }
     }
 
