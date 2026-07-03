@@ -3,3 +3,5 @@ Test.class
 LinkedList/LinkedList.class
 LinkedList/LinkedList$Node.class
 DynamicArray/DynArray.class
+DoublyLinkedList$Node.class
+DoublyLinkedList.class

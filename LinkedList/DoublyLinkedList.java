@@ -1,56 +1,46 @@
 package LinkedList;
 
-public class LinkedList<T> {
+public class DoublyLinkedList<T> {
     private Node Head;
     private Node Tail;
     private int size = 0;
 
-    // Node Class
     private class Node {
         public T val;
+        public Node prev;
         public Node next;
 
         public Node() {
+            prev = null;
             next = null;
         }
 
         public Node(T val) {
             this.val = val;
-            this.next = null;
+            prev = null;
+            next = null;
         }
     }
 
-    // constructors
-    public LinkedList() {
+    public DoublyLinkedList() {
         Head = new Node();
         Tail = null;
     }
 
-    public LinkedList(T val) {
+    public DoublyLinkedList(T val) {
         Head = new Node(val);
-        Tail = Head;
+        Tail = null;
         size++;
     }
 
-    // Recursions
-    private Node rev(Node prev, Node curr) {
-        if (curr == null) {
-            Head = prev;
-            return Head;
-        }
-        Node nex = curr.next;
-        curr.next = prev;
-        prev = curr;
-        return rev(prev, nex);
-    }
-
-    // modification
+    // Modifications
     public void add(T val) {
         if (Tail == null) {
-            Head.val = val;
-            Tail = Head;
+            Tail = new Node(val);
+            Head = Tail;
         } else {
             Tail.next = new Node(val);
+            Tail.next.prev = Tail;
             Tail = Tail.next;
         }
         size++;
@@ -62,89 +52,70 @@ public class LinkedList<T> {
         if (ind == 0) {
             Node nd = new Node(val);
             nd.next = Head;
+            Head.prev = nd;
             Head = nd;
         } else {
             Node itr = Head;
-            while (ind != 1) {
+            while (ind-- != 1)
                 itr = itr.next;
-                ind--;
-            }
             Node sv = itr.next;
             itr.next = new Node(val);
+            itr.next.prev = itr;
             itr.next.next = sv;
+            if (sv != null)
+                sv.prev = itr.next;
         }
         size++;
+    }
+
+    public T remove() {
+        if (Tail == null || Head == Tail) {
+            clear();
+            return null;
+        }
+        T ret = Tail.val;
+        Node nt = Tail.prev;
+        nt.next = null;
+        Tail = nt;
+        return ret;
     }
 
     public T remove(int ind) {
         if (ind < 0 || ind >= size)
             throw new IllegalArgumentException("Illegal Index " + ind);
-        T ret = Head.val;
+        T ret = null;
         if (ind == 0) {
             ret = Head.val;
+            if (Head.next != null)
+                Head.next.prev = null;
             Head = Head.next;
         } else {
             Node itr = Head;
-            while (ind != 1) {
+            while (ind-- != 1)
                 itr = itr.next;
-                ind--;
-            }
+            ret = itr.next.val;
+            if (itr.next.next != null)
+                itr.next.next.prev = itr;
             itr.next = itr.next.next;
         }
-        size--;
         return ret;
-    }
-
-    public T remove() {
-        if (Tail == Head || Tail == null) {
-            clear();
-            return null;
-        }
-        T ret = Tail.val;
-        Node itr = Head;
-        while (itr.next != Tail)
-            itr = itr.next;
-        itr.next = null;
-        Tail = itr;
-        return ret;
-    }
-
-    public void reverse() {
-        // Node itr = Head;
-        // Node prev = null;
-        // Node nex;
-        // while (itr != null) {
-        // nex = itr.next;
-        // itr.next = prev;
-        // prev = itr;
-        // itr = nex;
-        // }
-        // Head = prev;
-
-        Head = rev(null, Head);
     }
 
     public void clear() {
         Head = new Node();
         Tail = null;
-        size = 0;
     }
 
-    // getters
-    public int length() {
-        return size;
-    }
-
-    // Prints
+    // print
     public void print() {
         Node itr = Head;
         while (itr != null) {
             System.out.print(itr.val);
             if (itr.next != null)
-                System.out.print("->");
-            else
-                System.out.println();
+                System.out.print("<->");
             itr = itr.next;
         }
+        System.out.println();
     }
+
 }
