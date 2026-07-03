@@ -48,7 +48,7 @@ public class LinkedList<T> {
             throw new IllegalArgumentException("Illegal Index " + ind);
         if (ind == 0) {
             Node nd = new Node(val);
-            nd.next = Head.next;
+            nd.next = Head;
             Head = nd;
         } else {
             Node itr = Head;
