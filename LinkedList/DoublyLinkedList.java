@@ -101,9 +101,28 @@ public class DoublyLinkedList<T> {
         return ret;
     }
 
+    public void reverse() {
+        Node prev = null;
+        Node nd = Head;
+        Node nex;
+        while (nd != null) {
+            nex = nd.next;
+            nd.prev = nex;
+            nd.next = prev;
+            prev = nd;
+            nd = nex;
+        }
+        Head = prev;
+    }
+
     public void clear() {
         Head = new Node();
         Tail = null;
+    }
+
+    // getters
+    public int length() {
+        return size;
     }
 
     // print
