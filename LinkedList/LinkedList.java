@@ -30,6 +30,18 @@ public class LinkedList<T> {
         size++;
     }
 
+    // Recursions
+    private Node rev(Node prev, Node curr) {
+        if (curr == null) {
+            Head = prev;
+            return Head;
+        }
+        Node nex = curr.next;
+        curr.next = prev;
+        prev = curr;
+        return rev(prev, nex);
+    }
+
     // modification
     public void add(T val) {
         if (Tail == null) {
@@ -90,6 +102,27 @@ public class LinkedList<T> {
         itr.next = null;
         Tail = itr;
         return ret;
+    }
+
+    public void reverse() {
+        // Node itr = Head;
+        // Node prev = null;
+        // Node nex;
+        // while (itr != null) {
+        // nex = itr.next;
+        // itr.next = prev;
+        // prev = itr;
+        // itr = nex;
+        // }
+        // Head = prev;
+
+        Head = rev(null, Head);
+    }
+
+    public void clear() {
+        Head = new Node();
+        Tail = null;
+        size = 0;
     }
 
     // Prints
