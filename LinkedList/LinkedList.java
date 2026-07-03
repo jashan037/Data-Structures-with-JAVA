@@ -63,7 +63,26 @@ public class LinkedList<T> {
         size++;
     }
 
-    public T pop() {
+    public T remove(int ind) {
+        if (ind < 0 || ind >= size)
+            throw new IllegalArgumentException("Illegal Index " + ind);
+        T ret = Head.val;
+        if (ind == 0) {
+            ret = Head.val;
+            Head = Head.next;
+        } else {
+            Node itr = Head;
+            while (ind != 1) {
+                itr = itr.next;
+                ind--;
+            }
+            itr.next = itr.next.next;
+        }
+        size--;
+        return ret;
+    }
+
+    public T remove() {
         T ret = Tail.val;
         Node itr = Head;
         while (itr.next != Tail)
@@ -79,7 +98,7 @@ public class LinkedList<T> {
         while (itr != null) {
             System.out.print(itr.val);
             if (itr.next != null)
-                System.out.print(" ");
+                System.out.print("->");
             else
                 System.out.println();
             itr = itr.next;
