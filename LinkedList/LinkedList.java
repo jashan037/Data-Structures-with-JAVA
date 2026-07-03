@@ -43,6 +43,17 @@ public class LinkedList<T> {
         }
     }
 
+    public T pop() {
+        T ret = Tail.val;
+        Node itr = new Node();
+        itr = Head;
+        while (itr.next != Tail)
+            itr = itr.next;
+        itr.next = null;
+        Tail = itr;
+        return ret;
+    }
+
     // Prints
     public void print() {
         Node itr = new Node();
