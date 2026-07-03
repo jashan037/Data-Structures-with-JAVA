@@ -125,6 +125,11 @@ public class LinkedList<T> {
         size = 0;
     }
 
+    // getters
+    public int length() {
+        return size;
+    }
+
     // Prints
     public void print() {
         Node itr = Head;
