@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Grph {
     private class Edge {
@@ -38,7 +39,7 @@ public class Grph {
             this.edges.add(new Edge(this, vertex2, weight));
         }
 
-        public void removeEdge(Vertex vertex2, Integer weight) {
+        public void removeEdge(Vertex vertex2) {
             this.edges.removeIf(ed -> ed.getEnd().equals(vertex2));
         }
 
@@ -49,6 +50,52 @@ public class Grph {
         public ArrayList<Edge> getEdges() {
             return this.edges;
         }
+    }
+
+    public class Graph {
+        private HashMap<String, Vertex> hm;
+        private boolean isWeighted;
+        private boolean isDirected;
+
+        // constructors
+        public Graph(boolean isWeighted) {
+            this.hm = new HashMap<>();
+            this.isWeighted = isWeighted;
+            this.isDirected = false;
+        }
+
+        public Graph(boolean isWeighted, boolean isDirected) {
+            this.hm = new HashMap<>();
+            this.isWeighted = isWeighted;
+            this.isDirected = isDirected;
+        }
+
+        // Modifications
+        public Vertex addVertex(String data) {
+            Vertex vertex = new Vertex(data);
+            hm.put(data, vertex);
+            return vertex;
+        }
+
+        public void removeVertex(String data) {
+            if (hm.containsKey(data))
+                hm.remove(data);
+        }
+
+        public void addEdge(Vertex vertex1, Vertex vertex2, Integer weight) {
+            if (!isWeighted)
+                weight = null;
+            vertex1.addEdge(vertex2, weight);
+            if (isDirected)
+                vertex2.addEdge(vertex1, weight);
+        }
+
+        public void removeEdge(Vertex vertex1, Vertex vertex2) {
+            vertex1.removeEdge(vertex2);
+            if (isDirected)
+                vertex2.removeEdge(vertex1);
+        }
+
     }
 
 }
