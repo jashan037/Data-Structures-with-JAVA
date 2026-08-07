@@ -96,6 +96,15 @@ public class Grph {
                 vertex2.removeEdge(vertex1);
         }
 
+        // getters
+        public ArrayList<Vertex> getVerteces() {
+            return new ArrayList<Vertex>(hm.values());
+        }
+
+        public Vertex getVertex(String data) {
+            return hm.containsKey(data) ? hm.get(data) : null;
+        }
+
     }
 
 }
