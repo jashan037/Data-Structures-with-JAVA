@@ -25,4 +25,30 @@ public class Grph {
         }
     }
 
+    private class Vertex {
+        private String data;
+        private ArrayList<Edge> edges;
+
+        public Vertex(String data) {
+            this.data = data;
+            this.edges = new ArrayList<Edge>();
+        }
+
+        public void addEdge(Vertex vertex2, Integer weight) {
+            this.edges.add(new Edge(this, vertex2, weight));
+        }
+
+        public void removeEdge(Vertex vertex2, Integer weight) {
+            this.edges.removeIf(ed -> ed.getEnd().equals(vertex2));
+        }
+
+        public String getData() {
+            return this.data;
+        }
+
+        public ArrayList<Edge> getEdges() {
+            return this.edges;
+        }
+    }
+
 }
