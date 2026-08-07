@@ -5,3 +5,7 @@ LinkedList/LinkedList$Node.class
 DynamicArray/DynArray.class
 DoublyLinkedList$Node.class
 DoublyLinkedList.class
+Grph$Edge.class
+Grph$Graph.class
+Grph$Vertex.class
+Grph.class

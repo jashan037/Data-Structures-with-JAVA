@@ -1,5 +1,8 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Deque;
+import java.util.ArrayDeque;
 
 public class Grph {
     private class Edge {
@@ -105,6 +108,44 @@ public class Grph {
             return hm.containsKey(data) ? hm.get(data) : null;
         }
 
+        // traversels
+        // DFS
+        public void DFS(Vertex start) {
+            internalDFS(start, new HashSet<Vertex>());
+        }
+
+        private void internalDFS(Vertex start, HashSet<Vertex> visited) {
+            System.out.print(start.getData() + " ");
+            visited.add(start);
+            for (Edge e : start.getEdges()) {
+                Vertex neighbour = e.getEnd();
+                if (!visited.contains(neighbour)) {
+                    internalDFS(neighbour, visited);
+                }
+            }
+        }
+
+        // BFS
+        public void BFS(Vertex start) {
+            internalBFS(start, new HashSet<Vertex>());
+        }
+
+        private void internalBFS(Vertex start, HashSet<Vertex> visited) {
+            Deque<Vertex> q = new ArrayDeque<>();
+            visited.add(start);
+            q.addLast(start);
+            while (!q.isEmpty()) {
+                Vertex vertex = q.removeFirst();
+                System.out.print(vertex.getData() + " ");
+                for (Edge e : vertex.getEdges()) {
+                    Vertex neighbour = e.getEnd();
+                    if (!visited.contains(neighbour)) {
+                        visited.add(neighbour);
+                        q.addLast(neighbour);
+                    }
+                }
+            }
+        }
     }
 
 }
