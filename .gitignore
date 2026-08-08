@@ -10,3 +10,5 @@ Grph.class
 Graph/Test.java
 Graph/Test.class
 Grph$QueueObject.class
+Grph$MapPair.class
+Grph$Path.class

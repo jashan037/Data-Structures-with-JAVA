@@ -152,11 +152,21 @@ public class Grph {
         }
 
     }
-
     // Dijkstra
-    public static Map<String, Integer> Dijkstra(Graph g, Vertex startingVertex) {
+
+    public static class MapPair {
+        public Map<String, Integer> dist;
+        public Map<String, Vertex> prev;
+
+        public MapPair(Map<String, Integer> dist, Map<String, Vertex> prev) {
+            this.dist = dist;
+            this.prev = prev;
+        }
+    }
+
+    public static MapPair Dijkstra(Graph g, Vertex startingVertex) {
         Map<String, Integer> distances = new HashMap<>();
-        // Map<String, Vertex> previous = new HashMap<>();
+        Map<String, Vertex> previous = new HashMap<>();
         PriorityQueue<QueueObject> queue = new PriorityQueue<>();
 
         distances.put(startingVertex.getData(), 0);
@@ -164,7 +174,7 @@ public class Grph {
             if (vertex != startingVertex) {
                 distances.put(vertex.getData(), Integer.MAX_VALUE);
             }
-            // previous.put(vertex.getData(), null);
+            previous.put(vertex.getData(), null);
         }
 
         queue.offer(new QueueObject(startingVertex, 0));
@@ -175,12 +185,12 @@ public class Grph {
                 String neighbour = e.getEnd().getData();
                 if (alternate < distances.get(neighbour)) {
                     distances.put(neighbour, alternate);
-                    // previous.put(neighbour, current);
+                    previous.put(neighbour, current);
                 }
                 queue.offer(new QueueObject(e.getEnd(), distances.get(neighbour)));
             }
         }
-        return distances;
+        return new MapPair(distances, previous);
     }
 
     static class QueueObject implements Comparable<QueueObject> {
@@ -203,9 +213,33 @@ public class Grph {
     }
 
     // ShortestPathBetween
-    public static int ShortestPathBetween(Graph g, Vertex vertex1, Vertex vertex2) {
-        Map<String, Integer> hm = Dijkstra(g, vertex1);
-        return hm.get(vertex2.getData()) == null ? -1 : hm.get(vertex2.getData());
+    public static class Path {
+        public int distance;
+        public ArrayList<String> path;
+
+        public Path(int distance, ArrayList<String> path) {
+            this.distance = distance;
+            this.path = path;
+        }
+    }
+
+    public static Path ShortestPathBetween(Graph g, Vertex vertex1, Vertex vertex2) {
+        MapPair res = Dijkstra(g, vertex1);
+        Map<String, Integer> ds = res.dist;
+        Map<String, Vertex> prev = res.prev;
+        int distance = ds.get(vertex2.getData()) == null ? -1 : ds.get(vertex2.getData());
+        ArrayList<String> path = new ArrayList<>();
+        Vertex curr = vertex2;
+        while (curr != null) {
+            path.add(curr.getData());
+            curr = prev.get(curr.getData());
+        }
+        for (int i = 0, j = path.size() - 1; i < j; i++, j--) {
+            String temp = path.get(i);
+            path.set(i, path.get(j));
+            path.set(j, temp);
+        }
+        return new Path(distance, path);
     }
 
 }
