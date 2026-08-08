@@ -1,5 +1,3 @@
-Test.java
-Test.class
 LinkedList/LinkedList.class
 LinkedList/LinkedList$Node.class
 DynamicArray/DynArray.class
@@ -9,3 +7,6 @@ Grph$Edge.class
 Grph$Graph.class
 Grph$Vertex.class
 Grph.class
+Graph/Test.java
+Graph/Test.class
+Grph$QueueObject.class

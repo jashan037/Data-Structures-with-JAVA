@@ -1,11 +1,15 @@
+package Graph;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Deque;
 import java.util.ArrayDeque;
+import java.util.PriorityQueue;
+import java.util.Map;
 
 public class Grph {
-    private class Edge {
+    public static class Edge {
         private Vertex vertex1;
         private Vertex vertex2;
         private Integer weight;
@@ -29,7 +33,7 @@ public class Grph {
         }
     }
 
-    private class Vertex {
+    public static class Vertex {
         private String data;
         private ArrayList<Edge> edges;
 
@@ -55,7 +59,7 @@ public class Grph {
         }
     }
 
-    public class Graph {
+    public static class Graph {
         private HashMap<String, Vertex> hm;
         private boolean isWeighted;
         private boolean isDirected;
@@ -100,7 +104,7 @@ public class Grph {
         }
 
         // getters
-        public ArrayList<Vertex> getVerteces() {
+        public ArrayList<Vertex> getVertices() {
             return new ArrayList<Vertex>(hm.values());
         }
 
@@ -145,6 +149,56 @@ public class Grph {
                     }
                 }
             }
+        }
+
+    }
+
+    // Dijkstra
+    public static Map<String, Integer> Dijkstra(Graph g, Vertex startingVertex) {
+        Map<String, Integer> distances = new HashMap<>();
+        // Map<String, Vertex> previous = new HashMap<>();
+        PriorityQueue<QueueObject> queue = new PriorityQueue<>();
+
+        distances.put(startingVertex.getData(), 0);
+        for (Vertex vertex : g.getVertices()) {
+            if (vertex != startingVertex) {
+                distances.put(vertex.getData(), Integer.MAX_VALUE);
+            }
+            // previous.put(vertex.getData(), null);
+        }
+
+        queue.offer(new QueueObject(startingVertex, 0));
+        while (!queue.isEmpty()) {
+            Vertex current = queue.poll().vertex;
+            for (Edge e : current.getEdges()) {
+                Integer alternate = e.getWeight() + distances.get(current.getData());
+                String neighbour = e.getEnd().getData();
+                if (alternate < distances.get(neighbour)) {
+                    distances.put(neighbour, alternate);
+                    // previous.put(neighbour, current);
+                }
+                queue.offer(new QueueObject(e.getEnd(), distances.get(neighbour)));
+            }
+        }
+        return distances;
+    }
+
+    static class QueueObject implements Comparable<QueueObject> {
+        public Vertex vertex;
+        public int priority;
+
+        public QueueObject(Vertex v, int p) {
+            this.vertex = v;
+            this.priority = p;
+        }
+
+        public int compareTo(QueueObject o) {
+            if (this.priority == o.priority)
+                return 0;
+            else if (this.priority < o.priority)
+                return -1;
+            else
+                return 1;
         }
     }
 
