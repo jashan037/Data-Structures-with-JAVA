@@ -202,4 +202,10 @@ public class Grph {
         }
     }
 
+    // ShortestPathBetween
+    public static int ShortestPathBetween(Graph g, Vertex vertex1, Vertex vertex2) {
+        Map<String, Integer> hm = Dijkstra(g, vertex1);
+        return hm.get(vertex2.getData()) == null ? -1 : hm.get(vertex2.getData());
+    }
+
 }
