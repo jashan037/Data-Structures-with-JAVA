@@ -150,7 +150,6 @@ public class Grph {
                 }
             }
         }
-
     }
     // Dijkstra
 
@@ -242,4 +241,53 @@ public class Grph {
         return new Path(distance, path);
     }
 
+    // Prism
+
+    private static class QueueObjectEdge implements Comparable<QueueObjectEdge> {
+        private Edge edge;
+
+        public QueueObjectEdge(Edge edge) {
+            this.edge = edge;
+        }
+
+        public int compareTo(QueueObjectEdge o) {
+            if (edge.getWeight() == o.edge.getWeight()) {
+                return 0;
+            } else if (edge.getWeight() > o.edge.getWeight()) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }
+
+    public static Graph Prism(Graph graph, Vertex vertex1) {
+        HashSet<Vertex> visited = new HashSet<>();
+        PriorityQueue<QueueObjectEdge> que = new PriorityQueue<>();
+        Graph MST = new Graph(true, false);
+        for (Vertex v : graph.getVertices())
+            MST.addVertex(v.getData());
+        visited.add(vertex1);
+        internalPrism(vertex1, MST, que, visited);
+        return MST;
+    }
+
+    private static void internalPrism(Vertex start, Graph MST, PriorityQueue<QueueObjectEdge> que,
+            HashSet<Vertex> visited) {
+        for (Edge edge : start.getEdges()) {
+            que.offer(new QueueObjectEdge(edge));
+        }
+        if (que.isEmpty())
+            return;
+        Edge edge = que.poll().edge;
+        while (visited.contains(edge.getEnd()))
+            edge = que.poll().edge;
+        Vertex stVer = MST.getVertex(edge.getStart().getData());
+        Vertex endVer = MST.getVertex(edge.getEnd().getData());
+        if (!visited.contains(edge.getEnd())) {
+            stVer.addEdge(endVer, edge.weight);
+            visited.add(edge.getEnd());
+            internalPrism(edge.getEnd(), MST, que, visited);
+        }
+    }
 }
