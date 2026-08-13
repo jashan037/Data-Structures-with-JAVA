@@ -36,17 +36,21 @@ public class Grph {
     public static class Vertex {
         private String data;
         private ArrayList<Edge> edges;
+        private HashSet<String> hs;
 
         public Vertex(String data) {
             this.data = data;
             this.edges = new ArrayList<Edge>();
+            this.hs = new HashSet<>();
         }
 
         public void addEdge(Vertex vertex2, Integer weight) {
+            hs.add(vertex2.getData());
             this.edges.add(new Edge(this, vertex2, weight));
         }
 
         public void removeEdge(Vertex vertex2) {
+            hs.remove(vertex2.getData());
             this.edges.removeIf(ed -> ed.getEnd().equals(vertex2));
         }
 
@@ -56,6 +60,10 @@ public class Grph {
 
         public ArrayList<Edge> getEdges() {
             return this.edges;
+        }
+
+        public boolean containsEdge(Vertex vertex2) {
+            return hs.contains(vertex2.getData());
         }
     }
 
@@ -151,8 +159,8 @@ public class Grph {
             }
         }
     }
-    // Dijkstra
 
+    // Dijkstra
     public static class MapPair {
         public Map<String, Integer> dist;
         public Map<String, Vertex> prev;
@@ -242,7 +250,6 @@ public class Grph {
     }
 
     // Prism
-
     private static class QueueObjectEdge implements Comparable<QueueObjectEdge> {
         private Edge edge;
 
@@ -289,5 +296,42 @@ public class Grph {
             visited.add(edge.getEnd());
             internalPrism(edge.getEnd(), MST, que, visited);
         }
+    }
+
+    // Kruskal
+    private static boolean findInComponent(Vertex vertex, String data, HashSet<Vertex> visited) {
+        if (vertex.getData().equals(data)) {
+            return true;
+        }
+        for (Edge edge : vertex.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (!visited.contains(nb)) {
+                visited.add(nb);
+                if (findInComponent(nb, data, visited))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    public static Graph Kruskal(Graph graph) {
+        HashSet<Vertex> visited = new HashSet<>();
+        Graph MST = new Graph(true, false);
+        PriorityQueue<QueueObjectEdge> que = new PriorityQueue<>();
+        for (Vertex vertex : graph.getVertices()) {
+            MST.addVertex(vertex.getData());
+            for (Edge edge : vertex.getEdges())
+                que.offer(new QueueObjectEdge(edge));
+        }
+        while (!que.isEmpty()) {
+            Edge edge = que.poll().edge;
+            Vertex startEdge = MST.getVertex(edge.getStart().getData());
+            Vertex endEdge = MST.getVertex(edge.getEnd().getData());
+            if (!findInComponent(startEdge, endEdge.getData(), visited)) {
+                startEdge.addEdge(endEdge, edge.getWeight());
+            }
+            visited.clear();
+        }
+        return MST;
     }
 }
