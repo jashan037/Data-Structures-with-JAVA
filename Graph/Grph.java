@@ -120,6 +120,14 @@ public class Grph {
             return hm.containsKey(data) ? hm.get(data) : null;
         }
 
+        public boolean isDirected() {
+            return isDirected;
+        }
+
+        public boolean isWeighted() {
+            return isWeighted;
+        }
+
         // traversels
         // DFS
         public void DFS(Vertex start) {
@@ -281,9 +289,8 @@ public class Grph {
 
     private static void internalPrism(Vertex start, Graph MST, PriorityQueue<QueueObjectEdge> que,
             HashSet<Vertex> visited) {
-        for (Edge edge : start.getEdges()) {
+        for (Edge edge : start.getEdges())
             que.offer(new QueueObjectEdge(edge));
-        }
         if (que.isEmpty())
             return;
         Edge edge = que.poll().edge;
@@ -309,7 +316,45 @@ public class Grph {
                 visited.add(nb);
                 if (findInComponent(nb, data, visited))
                     return true;
+            }// cycle Detection
+    public static boolean containsCycle(Graph graph, Vertex start) {
+        HashSet<Vertex> visited = new HashSet<>();
+        HashMap<Vertex, Integer> state = new HashMap<>();
+        if (graph.isDirected()) {
+            return directedCycle(start, state);
+        } else {
+            return undirectedCycle(null, start, visited);
+        }
+    }
+
+    private static boolean undirectedCycle(Vertex parent, Vertex start, HashSet<Vertex> visited) {
+        visited.add(start);
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (visited.contains(nb) && nb != parent)
+                return true;
+            else if (!visited.contains(nb)) {
+                if (undirectedCycle(start, nb, visited))
+                    return true;
             }
+        }
+        return false;
+    }
+
+    private static boolean directedCycle(Vertex start, HashMap<Vertex, Integer> state) {
+        state.put(start, 1);
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (state.get(nb) == 1)
+                return true;
+            if (!state.containsKey(nb)) {
+                if (directedCycle(nb, state))
+                    return true;
+            }
+        }
+        state.put(start, 2);
+        return false;
+    }
         }
         return false;
     }
@@ -333,5 +378,45 @@ public class Grph {
             visited.clear();
         }
         return MST;
+    }
+
+    // cycle Detection
+    public static boolean containsCycle(Graph graph, Vertex start) {
+        HashSet<Vertex> visited = new HashSet<>();
+        HashMap<Vertex, Integer> state = new HashMap<>();
+        if (graph.isDirected()) {
+            return directedCycle(start, state);
+        } else {
+            return undirectedCycle(null, start, visited);
+        }
+    }
+
+    private static boolean undirectedCycle(Vertex parent, Vertex start, HashSet<Vertex> visited) {
+        visited.add(start);
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (visited.contains(nb) && nb != parent)
+                return true;
+            else if (!visited.contains(nb)) {
+                if (undirectedCycle(start, nb, visited))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean directedCycle(Vertex start, HashMap<Vertex, Integer> state) {
+        state.put(start, 1);
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (state.get(nb) == 1)
+                return true;
+            if (!state.containsKey(nb)) {
+                if (directedCycle(nb, state))
+                    return true;
+            }
+        }
+        state.put(start, 2);
+        return false;
     }
 }
