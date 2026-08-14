@@ -381,4 +381,25 @@ public class Grph {
         state.put(start, 2);
         return false;
     }
+
+    // bipartite
+    public static boolean isBipartite(Vertex start) {
+        HashMap<Vertex, Integer> color = new HashMap<>();
+        color.put(start, 0);
+        return internalBipartite(start, color);
+    }
+
+    private static boolean internalBipartite(Vertex start, HashMap<Vertex, Integer> color) {
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (color.containsKey(nb) && color.get(start).equals(color.get(nb)))
+                return false;
+            if (!color.containsKey(nb)) {
+                color.put(nb, 1 - color.get(start));
+                if (!internalBipartite(nb, color))
+                    return false;
+            }
+        }
+        return true;
+    }
 }
