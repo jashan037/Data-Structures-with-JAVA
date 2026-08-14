@@ -306,55 +306,17 @@ public class Grph {
     }
 
     // Kruskal
-    private static boolean findInComponent(Vertex vertex, String data, HashSet<Vertex> visited) {
-        if (vertex.getData().equals(data)) {
+
+    public static boolean findInComponent(Vertex start, String data, HashSet<Vertex> visited) {
+        visited.add(start);
+        if (start.getData().equals(data))
             return true;
-        }
-        for (Edge edge : vertex.getEdges()) {
+        for (Edge edge : start.getEdges()) {
             Vertex nb = edge.getEnd();
             if (!visited.contains(nb)) {
-                visited.add(nb);
                 if (findInComponent(nb, data, visited))
                     return true;
-            }// cycle Detection
-    public static boolean containsCycle(Graph graph, Vertex start) {
-        HashSet<Vertex> visited = new HashSet<>();
-        HashMap<Vertex, Integer> state = new HashMap<>();
-        if (graph.isDirected()) {
-            return directedCycle(start, state);
-        } else {
-            return undirectedCycle(null, start, visited);
-        }
-    }
-
-    private static boolean undirectedCycle(Vertex parent, Vertex start, HashSet<Vertex> visited) {
-        visited.add(start);
-        for (Edge edge : start.getEdges()) {
-            Vertex nb = edge.getEnd();
-            if (visited.contains(nb) && nb != parent)
-                return true;
-            else if (!visited.contains(nb)) {
-                if (undirectedCycle(start, nb, visited))
-                    return true;
             }
-        }
-        return false;
-    }
-
-    private static boolean directedCycle(Vertex start, HashMap<Vertex, Integer> state) {
-        state.put(start, 1);
-        for (Edge edge : start.getEdges()) {
-            Vertex nb = edge.getEnd();
-            if (state.get(nb) == 1)
-                return true;
-            if (!state.containsKey(nb)) {
-                if (directedCycle(nb, state))
-                    return true;
-            }
-        }
-        state.put(start, 2);
-        return false;
-    }
         }
         return false;
     }
