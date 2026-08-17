@@ -3,10 +3,10 @@ package Graph;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Deque;
 import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 import java.util.Map;
+import java.util.Deque;
 
 public class Grph {
     public static class Edge {
@@ -97,11 +97,17 @@ public class Grph {
                 hm.remove(data);
         }
 
+        public void addEdge(Vertex vertex1, Vertex vertex2) {
+            vertex1.addEdge(vertex2, null);
+            if (!isDirected)
+                vertex2.addEdge(vertex1, null);
+        }
+
         public void addEdge(Vertex vertex1, Vertex vertex2, Integer weight) {
             if (!isWeighted)
                 weight = null;
             vertex1.addEdge(vertex2, weight);
-            if (isDirected)
+            if (!isDirected)
                 vertex2.addEdge(vertex1, weight);
         }
 
@@ -401,5 +407,57 @@ public class Grph {
             }
         }
         return true;
+    }
+
+    // solve diconnecting Vertex
+    // Kosaraju
+    public static ArrayList<ArrayList<Vertex>> Kosaraju(Graph graph, Vertex start) {
+        ArrayList<ArrayList<Vertex>> SCC = new ArrayList<>();
+        Deque<Vertex> stack = new ArrayDeque<>();
+        KosarajuDFS(start, stack, new HashSet<Vertex>());
+        Graph revGraph = new Graph(false, true);
+        for (Vertex vertex : graph.getVertices())
+            revGraph.addVertex(vertex.getData());
+        for (Vertex vertex : graph.getVertices()) {
+            for (Edge edge : vertex.getEdges()) {
+                Vertex st = revGraph.getVertex(edge.getEnd().getData());
+                Vertex end = revGraph.getVertex(edge.getStart().getData());
+                revGraph.addEdge(st, end);
+            }
+        }
+
+        HashSet<Vertex> visited = new HashSet<>();
+        while (!stack.isEmpty()) {
+            Vertex ver = stack.pop();
+            Vertex revVer = revGraph.getVertex((ver.getData()));
+            if (visited.contains(revVer))
+                continue;
+            ArrayList<Vertex> arr = new ArrayList<>();
+            KosarajuDFS(graph, revVer, visited, arr);
+            SCC.add(arr);
+        }
+        return SCC;
+    }
+
+    private static void KosarajuDFS(Graph graph, Vertex start, HashSet<Vertex> visited, ArrayList<Vertex> arr) {
+        visited.add(start);
+        arr.add(graph.getVertex(start.getData()));
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (!visited.contains(nb)) {
+                KosarajuDFS(graph, nb, visited, arr);
+            }
+        }
+    }
+
+    private static void KosarajuDFS(Vertex start, Deque<Vertex> stack, HashSet<Vertex> visited) {
+        visited.add(start);
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (!visited.contains(nb)) {
+                KosarajuDFS(nb, stack, visited);
+            }
+        }
+        stack.push(start);
     }
 }
