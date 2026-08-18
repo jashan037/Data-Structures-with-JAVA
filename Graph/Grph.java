@@ -460,4 +460,51 @@ public class Grph {
         }
         stack.push(start);
     }
+
+    // tarjan
+    private static int tarjanItr = 0;
+
+    public static ArrayList<ArrayList<Vertex>> Tarjan(Graph graph, Vertex A) {
+        HashMap<Vertex, Integer> disc = new HashMap<>();
+        HashMap<Vertex, Integer> low = new HashMap<>();
+        HashSet<Vertex> onStack = new HashSet<>();
+        Deque<Vertex> stack = new ArrayDeque<>();
+        ArrayList<ArrayList<Vertex>> scc = new ArrayList<>();
+        tarjanItr = 0;
+        tarjanDFS(A, disc, low, stack, onStack, scc);
+        for (Vertex vertex : graph.getVertices()) {
+            if (disc.containsKey(vertex)) {
+                continue;
+            }
+            tarjanDFS(vertex, disc, low, stack, onStack, scc);
+        }
+        return scc;
+    }
+
+    private static void tarjanDFS(Vertex start, HashMap<Vertex, Integer> disc, HashMap<Vertex, Integer> low,
+            Deque<Vertex> stack, HashSet<Vertex> onStack, ArrayList<ArrayList<Vertex>> scc) {
+        disc.put(start, tarjanItr);
+        low.put(start, tarjanItr);
+        tarjanItr++;
+        stack.push(start);
+        onStack.add(start);
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (!disc.containsKey(nb)) {
+                tarjanDFS(nb, disc, low, stack, onStack, scc);
+                if (low.get(start) == low.get(nb)) {
+                    ArrayList<Vertex> cc = new ArrayList<>();
+                    while (onStack.contains(start)) {
+                        Vertex ver = stack.pop();
+                        onStack.remove(ver);
+                        cc.add(ver);
+                    }
+                    scc.add(cc);
+                }
+            }
+            if (disc.containsKey(nb) && onStack.contains(nb)) {
+                low.put(start, Math.min(low.get(nb), low.get(start)));
+            }
+        }
+    }
 }
