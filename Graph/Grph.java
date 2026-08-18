@@ -7,6 +7,7 @@ import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 import java.util.Map;
 import java.util.Deque;
+import java.util.Collections;
 
 public class Grph {
     public static class Edge {
@@ -507,4 +508,30 @@ public class Grph {
             }
         }
     }
+
+    // topological Sort
+    public static ArrayList<Vertex> topologicalSort(Graph graph) {
+        HashSet<Vertex> visited = new HashSet<>();
+        ArrayList<Vertex> sol = new ArrayList<>();
+        for (Vertex vertex : graph.getVertices()) {
+            if (visited.contains(vertex))
+                continue;
+            topologicalDFS(vertex, visited, sol);
+        }
+        Collections.reverse(sol);
+        return sol;
+
+    }
+
+    private static void topologicalDFS(Vertex start, HashSet<Vertex> visited, ArrayList<Vertex> sol) {
+        visited.add(start);
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (!visited.contains(nb)) {
+                topologicalDFS(nb, visited, sol);
+            }
+        }
+        sol.add(start);
+    }
+
 }
