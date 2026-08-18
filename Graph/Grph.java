@@ -479,6 +479,7 @@ public class Grph {
             }
             tarjanDFS(vertex, disc, low, stack, onStack, scc);
         }
+        tarjanItr = 0;
         return scc;
     }
 
@@ -534,4 +535,37 @@ public class Grph {
         sol.add(start);
     }
 
+    // Bridges
+    private static int bridgesItr = 0;
+
+    public static ArrayList<Edge> findBridges(Graph graph) {
+        HashMap<Vertex, Integer> disc = new HashMap<>();
+        HashMap<Vertex, Integer> low = new HashMap<>();
+        ArrayList<Edge> sol = new ArrayList<>();
+        for (Vertex vertex : graph.getVertices()) {
+            if (disc.containsKey(vertex))
+                continue;
+            bridgesItr++;
+            bridgesDFS(null, vertex, sol, disc, low);
+        }
+        return sol;
+    }
+
+    private static void bridgesDFS(Vertex parent, Vertex start, ArrayList<Edge> sol,
+            HashMap<Vertex, Integer> disc, HashMap<Vertex, Integer> low) {
+        disc.put(start, bridgesItr);
+        low.put(start, bridgesItr);
+        bridgesItr++;
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (!disc.containsKey(nb)) {
+                bridgesDFS(start, nb, sol, disc, low);
+                if (low.get(nb) > low.get(start))
+                    sol.add(edge);
+            }
+            if (disc.containsKey(nb) && nb != parent) {
+                low.put(start, Math.min(low.get(start), low.get(nb)));
+            }
+        }
+    }
 }
