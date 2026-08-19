@@ -465,18 +465,15 @@ public class Grph {
     // tarjan
     private static int tarjanItr = 0;
 
-    public static ArrayList<ArrayList<Vertex>> Tarjan(Graph graph, Vertex A) {
+    public static ArrayList<ArrayList<Vertex>> tarjan(Graph graph) {
         HashMap<Vertex, Integer> disc = new HashMap<>();
         HashMap<Vertex, Integer> low = new HashMap<>();
-        HashSet<Vertex> onStack = new HashSet<>();
         Deque<Vertex> stack = new ArrayDeque<>();
+        HashSet<Vertex> onStack = new HashSet<>();
         ArrayList<ArrayList<Vertex>> scc = new ArrayList<>();
-        tarjanItr = 0;
-        tarjanDFS(A, disc, low, stack, onStack, scc);
         for (Vertex vertex : graph.getVertices()) {
-            if (disc.containsKey(vertex)) {
+            if (disc.containsKey(vertex))
                 continue;
-            }
             tarjanDFS(vertex, disc, low, stack, onStack, scc);
         }
         tarjanItr = 0;
@@ -494,19 +491,21 @@ public class Grph {
             Vertex nb = edge.getEnd();
             if (!disc.containsKey(nb)) {
                 tarjanDFS(nb, disc, low, stack, onStack, scc);
-                if (low.get(start) == low.get(nb)) {
-                    ArrayList<Vertex> cc = new ArrayList<>();
-                    while (onStack.contains(start)) {
-                        Vertex ver = stack.pop();
-                        onStack.remove(ver);
-                        cc.add(ver);
-                    }
-                    scc.add(cc);
+                if (onStack.contains(nb)) {
+                    low.put(start, Math.min(low.get(start), low.get(nb)));
                 }
+            } else if (disc.containsKey(nb) && onStack.contains(nb)) {
+                low.put(start, Math.min(low.get(start), disc.get(nb)));
             }
-            if (disc.containsKey(nb) && onStack.contains(nb)) {
-                low.put(start, Math.min(low.get(nb), low.get(start)));
+        }
+        if (low.get(start).equals(disc.get(start))) {
+            ArrayList<Vertex> cc = new ArrayList<>();
+            while (onStack.contains(start)) {
+                Vertex ver = stack.pop();
+                onStack.remove(ver);
+                cc.add(ver);
             }
+            scc.add(cc);
         }
     }
 
@@ -548,6 +547,7 @@ public class Grph {
             bridgesItr++;
             bridgesDFS(null, vertex, sol, disc, low);
         }
+        bridgesItr = 0;
         return sol;
     }
 
@@ -560,12 +560,52 @@ public class Grph {
             Vertex nb = edge.getEnd();
             if (!disc.containsKey(nb)) {
                 bridgesDFS(start, nb, sol, disc, low);
-                if (low.get(nb) > low.get(start))
+                if (low.get(nb) > disc.get(start)) {
                     sol.add(edge);
-            }
-            if (disc.containsKey(nb) && nb != parent) {
-                low.put(start, Math.min(low.get(start), low.get(nb)));
+                }
+            } else if (disc.containsKey(nb) && nb != parent) {
+                low.put(start, Math.min(low.get(start), disc.get(nb)));
             }
         }
+    }
+
+    // Articulation points
+
+    public static ArrayList<Vertex> findArticulation(Graph graph) {
+        HashMap<Vertex, Integer> disc = new HashMap<>();
+        HashMap<Vertex, Integer> low = new HashMap<>();
+        ArrayList<Vertex> sol = new ArrayList<>();
+        for (Vertex vertex : graph.getVertices()) {
+            if (disc.containsKey(vertex))
+                continue;
+            ArticulationDFS(null, vertex, disc, low, sol);
+        }
+        bridgesItr = 0;
+        return sol;
+    }
+
+    private static void ArticulationDFS(Vertex parent, Vertex start, HashMap<Vertex, Integer> disc,
+            HashMap<Vertex, Integer> low, ArrayList<Vertex> sol) {
+        disc.put(start, bridgesItr);
+        low.put(start, bridgesItr);
+        bridgesItr++;
+        int childCount = 0;
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (!disc.containsKey(nb)) {
+                childCount++;
+                ArticulationDFS(start, nb, disc, low, sol);
+                low.put(start, Math.min(low.get(start), low.get(nb)));
+                if ((disc.get(start) <= low.get(nb)) && parent != null) {
+                    sol.add(edge.getStart());
+                }
+            } else if (disc.containsKey(nb) && nb != parent) {
+                low.put(start, Math.min(low.get(start), disc.get(nb)));
+            }
+        }
+        if (parent == null && childCount > 1) {
+            sol.add(start);
+        }
+
     }
 }
