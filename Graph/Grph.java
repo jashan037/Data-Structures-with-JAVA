@@ -418,21 +418,29 @@ public class Grph {
     }
 
     // bipartite
-    public static boolean isBipartite(Vertex start) {
+    public static boolean isBipartite(Graph graph) {
         HashMap<Vertex, Integer> color = new HashMap<>();
-        color.put(start, 0);
-        return internalBipartite(start, color);
+        boolean res = false;
+        for (Vertex vertex : graph.getVertices()) {
+            if (!color.containsKey(vertex))
+                res = res || isBipartiteDFS(null, vertex, color);
+            if (res)
+                return res;
+        }
+        return res;
     }
 
-    private static boolean internalBipartite(Vertex start, HashMap<Vertex, Integer> color) {
+    private static boolean isBipartiteDFS(Vertex parent, Vertex start, HashMap<Vertex, Integer> color) {
+        if (color.containsKey(parent))
+            color.put(start, 1 - color.get(parent));
+        else
+            color.put(start, 0);
         for (Edge edge : start.getEdges()) {
             Vertex nb = edge.getEnd();
-            if (color.containsKey(nb) && color.get(start).equals(color.get(nb)))
+            if (color.containsKey(nb) && ((color.get(nb) == color.get(start))))
                 return false;
-            if (!color.containsKey(nb)) {
-                color.put(nb, 1 - color.get(start));
-                if (!internalBipartite(nb, color))
-                    return false;
+            if (!color.containsKey(nb) && !isBipartiteDFS(start, nb, color)) {
+                return false;
             }
         }
         return true;
