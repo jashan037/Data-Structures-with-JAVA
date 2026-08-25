@@ -21,6 +21,10 @@ public class Grph {
             this.weight = weight;
         }
 
+        public void setWeight(Integer weight) {
+            this.weight = weight;
+        }
+
         public Vertex getStart() {
             return vertex1;
         }
@@ -43,6 +47,10 @@ public class Grph {
             this.data = data;
             this.edges = new ArrayList<Edge>();
             this.hs = new HashSet<>();
+        }
+
+        public void addEdge(Edge edge) {
+            edges.add(edge);
         }
 
         public void addEdge(Vertex vertex2, Integer weight) {
@@ -96,6 +104,15 @@ public class Grph {
         public void removeVertex(String data) {
             if (hm.containsKey(data))
                 hm.remove(data);
+        }
+
+        public void addEdge(Edge edge) {
+            Vertex startVertex = edge.getStart();
+            startVertex.addEdge(edge);
+            if (!isDirected()) {
+                Vertex endVertex = edge.getEnd();
+                endVertex.addEdge(startVertex, (isWeighted() ? edge.getWeight() : null));
+            }
         }
 
         public void addEdge(Vertex vertex1, Vertex vertex2) {
@@ -264,51 +281,34 @@ public class Grph {
         return new Path(distance, path);
     }
 
-    // Prism
-    private static class QueueObjectEdge implements Comparable<QueueObjectEdge> {
-        private Edge edge;
-
-        public QueueObjectEdge(Edge edge) {
-            this.edge = edge;
-        }
-
-        public int compareTo(QueueObjectEdge o) {
-            if (edge.getWeight() == o.edge.getWeight()) {
-                return 0;
-            } else if (edge.getWeight() > o.edge.getWeight()) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
-    }
-
-    public static Graph Prism(Graph graph, Vertex vertex1) {
+    // Prim
+    public static Graph prims(Graph graph, Vertex start) {
         HashSet<Vertex> visited = new HashSet<>();
-        PriorityQueue<QueueObjectEdge> que = new PriorityQueue<>();
         Graph MST = new Graph(true, false);
-        for (Vertex v : graph.getVertices())
-            MST.addVertex(v.getData());
-        visited.add(vertex1);
-        internalPrism(vertex1, MST, que, visited);
+        PriorityQueue<Edge> que = new PriorityQueue<>((a, b) -> (a.getWeight() - b.getWeight()));
+        for (Vertex vertex : graph.getVertices())
+            MST.addVertex(vertex.getData());
+        primsDFS(MST, start, visited, que);
         return MST;
     }
 
-    private static void internalPrism(Vertex start, Graph MST, PriorityQueue<QueueObjectEdge> que,
-            HashSet<Vertex> visited) {
+    private static void primsDFS(Graph MST, Vertex start, HashSet<Vertex> visited, PriorityQueue<Edge> que) {
+        visited.add(start);
         for (Edge edge : start.getEdges())
-            que.offer(new QueueObjectEdge(edge));
+            que.offer(edge);
         if (que.isEmpty())
             return;
-        Edge edge = que.poll().edge;
-        while (visited.contains(edge.getEnd()))
-            edge = que.poll().edge;
-        Vertex stVer = MST.getVertex(edge.getStart().getData());
-        Vertex endVer = MST.getVertex(edge.getEnd().getData());
-        if (!visited.contains(edge.getEnd())) {
-            stVer.addEdge(endVer, edge.weight);
-            visited.add(edge.getEnd());
-            internalPrism(edge.getEnd(), MST, que, visited);
+        while (!que.isEmpty()) {
+            Edge edge = que.poll();
+            Vertex nb = edge.getEnd();
+            if (visited.contains(nb))
+                continue;
+
+            Vertex st = MST.getVertex(start.getData());
+            Vertex end = MST.getVertex(nb.getData());
+            st.addEdge(end, edge.getWeight());
+            primsDFS(MST, nb, visited, que);
+            return;
         }
     }
 
@@ -606,6 +606,126 @@ public class Grph {
         if (parent == null && childCount > 1) {
             sol.add(start);
         }
+    }
+
+    // Create a new clone Graph with added reverse Edges.
+    // public static Graph revEdgesGraph(Graph graph, HashMap<Edge, Edge> revMap) {
+    // Graph res = new Graph(graph.isWeighted(), graph.isDirected());
+    // for (Vertex vertex : graph.getVertices())
+    // res.addVertex(vertex.getData());
+    // for (Vertex vertex : graph.getVertices()) {
+    // for (Edge edge : vertex.getEdges()) {
+    // Vertex startVertex = edge.getStart();
+    // Vertex endVertex = edge.getEnd();
+    // Edge rev = new Edge(endVertex, startVertex, 0);
+    // graph.addEdge(rev);
+    // revMap.put(edge, rev);
+    // }
+    // }
+    // return res;
+    // }
+
+    // Find augmenting paths in a flow network
+    // private static class flowEdge {
+    // public int flowing;
+    // public int cap;
+
+    // public flowEdge(int flowing, int cap) {
+    // this.flowing = flowing;
+    // this.cap = cap;
+    // }
+    // }
+
+    // public static int maxFlow(Graph graph, Vertex s, Vertex t) {
+    // HashMap<Edge, flowEdge> flowMap = new HashMap<>();
+    // HashMap<Edge, Edge> revMap = new HashMap<>();
+    // int flow = Integer.MAX_VALUE;
+    // Graph rev = revEdgesGraph(graph, revMap);
+    // s = rev.getVertex(s.getData());
+    // t = rev.getVertex(t.getData());
+    // for (Vertex vertex : rev.getVertices()) {
+    // for (Edge edge : vertex.getEdges())
+    // flowMap.put(edge, new flowEdge(0, edge.getWeight()));
+    // }
+    // return maxFlowDFS(s, t, flow, flowMap);
+    // }
+
+    // private static int maxFlowDFS(Vertex s, Vertex t, int flow, HashMap<Edge,
+    // flowEdge> map) {
+    // if (s == t)
+    // return flow;
+    // int gotThrough = 0;
+    // for (Edge edge : s.getEdges()) {
+    // Vertex nb = edge.getEnd();
+    // if (!map.containsKey(edge) && edge.getWeight() > 0) {
+    // int newFlow = Math.min(flow, edge.getWeight());
+    // flow = maxFlowDFS(nb, t, newFlow, map);
+    // gotThrough += flow;
+    // flowEdge obj = new flowEdge(flow, edge.getWeight() - flow);
+    // map.put(edge, obj);
+    // } else if (map.containsKey(edge)) {
+    // int newFlow = Math.min(flow, map.get(edge).leftFlow);
+    // flow = maxFlowDFS(nb, t, newFlow, map);
+    // int nflow = flow + map.get(edge).flowing;
+    // gotThrough += flow;
+    // flowEdge obj = new flowEdge(nflow, map.get(edge).leftFlow - flow);
+    // flow = nflow;
+    // map.put(edge, obj);
+    // }
+    // }
+    // return gotThrough;
+    // }
+
+    // private static int maxFlowDFS(Vertex s, Vertex t, int flow, HashMap<Edge,
+    // flowEdge> map) {
+    // if (s == t)
+    // return flow;
+    // for (Edge edge : s.getEdges()) {
+    // flowEdge fledge = map.get(edge);
+    // Vertex nb = edge.getEnd();
+    // if (fledge.cap > 0) {
+    // flow = Math.min(flow, fledge.cap);
+    // flow = maxFlowDFS(nb, t, flow, map);
+    // fledge.flowing = flow;
+    // fledge.cap = fledge.cap - flow;
+
+    // }
+    // }
+    // }
+
+    // Revision
+
+    public static boolean revfindInComponent(Vertex start, Vertex find, HashSet<Vertex> visited) {
+        visited.add(start);
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (!visited.contains(nb)) {
+                if (nb == find)
+                    return true;
+                if (revfindInComponent(nb, find, visited))
+                    return true;
+            }
+        }
+        return false;
 
     }
+
+    public static Graph revKruskal(Graph graph, Vertex start) {
+        PriorityQueue<Edge> que = new PriorityQueue<>((a, b) -> (a.getWeight() - b.getWeight()));
+        Graph MST = new Graph(true, false);
+        for (Vertex vertex : graph.getVertices()) {
+            MST.addVertex(vertex.getData());
+            for (Edge edge : vertex.getEdges())
+                que.offer(edge);
+        }
+        while (!que.isEmpty()) {
+            Edge edge = que.poll();
+            Vertex st = MST.getVertex(edge.getStart().getData());
+            Vertex end = MST.getVertex(edge.getEnd().getData());
+            if (!revfindInComponent(st, end, new HashSet<Vertex>()))
+                st.addEdge(end, edge.getWeight());
+        }
+        return MST;
+    }
+
 }
