@@ -372,42 +372,48 @@ public class Grph {
     }
 
     // cycle Detection
-    public static boolean containsCycle(Graph graph, Vertex start) {
+    public static boolean cycleDetection(Graph graph) {
         HashSet<Vertex> visited = new HashSet<>();
-        HashMap<Vertex, Integer> state = new HashMap<>();
-        if (graph.isDirected()) {
-            return directedCycle(start, state);
-        } else {
-            return undirectedCycle(null, start, visited);
+        boolean res = false;
+        for (Vertex vertex : graph.getVertices()) {
+            if (!visited.contains(vertex) && graph.isDirected()) {
+                res = res || directedCycleDetection(vertex, visited, new HashSet<Vertex>());
+            } else if (!visited.contains(vertex) && !graph.isDirected()) {
+                res = res || undirectedCycleDetection(null, vertex, visited);
+            }
+            if (res)
+                return res;
         }
+        return res;
     }
 
-    private static boolean undirectedCycle(Vertex parent, Vertex start, HashSet<Vertex> visited) {
+    private static boolean directedCycleDetection(Vertex start, HashSet<Vertex> visited, HashSet<Vertex> onPath) {
         visited.add(start);
+        onPath.add(start);
         for (Edge edge : start.getEdges()) {
             Vertex nb = edge.getEnd();
-            if (visited.contains(nb) && nb != parent)
+            if (onPath.contains(nb) && visited.contains(nb)) {
                 return true;
-            else if (!visited.contains(nb)) {
-                if (undirectedCycle(start, nb, visited))
-                    return true;
+            }
+            if (!visited.contains(nb) && directedCycleDetection(nb, visited, onPath)) {
+                return true;
             }
         }
+        onPath.remove(start);
         return false;
     }
 
-    private static boolean directedCycle(Vertex start, HashMap<Vertex, Integer> state) {
-        state.put(start, 1);
+    private static boolean undirectedCycleDetection(Vertex parent, Vertex start, HashSet<Vertex> visited) {
+        visited.add(start);
         for (Edge edge : start.getEdges()) {
             Vertex nb = edge.getEnd();
-            if (state.get(nb) == 1)
+            if (nb != parent && visited.contains(nb)) {
                 return true;
-            if (!state.containsKey(nb)) {
-                if (directedCycle(nb, state))
-                    return true;
+            }
+            if (!visited.contains(nb) && undirectedCycleDetection(start, nb, visited)) {
+                return true;
             }
         }
-        state.put(start, 2);
         return false;
     }
 
