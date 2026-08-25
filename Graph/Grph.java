@@ -192,6 +192,42 @@ public class Grph {
         }
     }
 
+    // DSU
+    public static class DSU {
+        private HashMap<Vertex, Vertex> parent;
+        private HashMap<Vertex, Integer> size;
+
+        public DSU(Graph graph) {
+            parent = new HashMap<>();
+            size = new HashMap<>();
+            for (Vertex vertex : graph.getVertices()) {
+                parent.put(vertex, vertex);
+                size.put(vertex, 1);
+            }
+        }
+
+        public Vertex find(Vertex vertex) {
+            if (parent.get(vertex) == vertex)
+                return vertex;
+            parent.put(vertex, find(parent.get(vertex)));
+            return parent.get(vertex);
+        }
+
+        public void union(Vertex vertex1, Vertex vertex2) {
+            Vertex p1 = find(vertex1);
+            Vertex p2 = find(vertex2);
+            if (p1 == p2)
+                return;
+            if (size.get(p1) < size.get(p2)) {
+                size.put(p1, size.get(p1) + size.get(p2));
+                parent.put(p1, p2);
+                return;
+            }
+            size.put(p2, size.get(p1) + size.get(p2));
+            parent.put(p2, p1);
+        }
+    }
+
     // Dijkstra
     public static class MapPair {
         public Map<String, Integer> dist;
@@ -695,21 +731,6 @@ public class Grph {
 
     // Revision
 
-    public static boolean revfindInComponent(Vertex start, Vertex find, HashSet<Vertex> visited) {
-        visited.add(start);
-        for (Edge edge : start.getEdges()) {
-            Vertex nb = edge.getEnd();
-            if (!visited.contains(nb)) {
-                if (nb == find)
-                    return true;
-                if (revfindInComponent(nb, find, visited))
-                    return true;
-            }
-        }
-        return false;
-
-    }
-
     public static Graph revKruskal(Graph graph, Vertex start) {
         PriorityQueue<Edge> que = new PriorityQueue<>((a, b) -> (a.getWeight() - b.getWeight()));
         Graph MST = new Graph(true, false);
@@ -718,12 +739,15 @@ public class Grph {
             for (Edge edge : vertex.getEdges())
                 que.offer(edge);
         }
+        DSU dsu = new DSU(MST);
         while (!que.isEmpty()) {
             Edge edge = que.poll();
             Vertex st = MST.getVertex(edge.getStart().getData());
             Vertex end = MST.getVertex(edge.getEnd().getData());
-            if (!revfindInComponent(st, end, new HashSet<Vertex>()))
+            if (dsu.find(st) != dsu.find(end)) {
                 st.addEdge(end, edge.getWeight());
+                dsu.union(st, end);
+            }
         }
         return MST;
     }
