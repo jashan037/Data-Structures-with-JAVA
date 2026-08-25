@@ -350,37 +350,23 @@ public class Grph {
 
     // Kruskal
 
-    public static boolean findInComponent(Vertex start, String data, HashSet<Vertex> visited) {
-        visited.add(start);
-        if (start.getData().equals(data))
-            return true;
-        for (Edge edge : start.getEdges()) {
-            Vertex nb = edge.getEnd();
-            if (!visited.contains(nb)) {
-                if (findInComponent(nb, data, visited))
-                    return true;
-            }
-        }
-        return false;
-    }
-
-    public static Graph Kruskal(Graph graph) {
-        HashSet<Vertex> visited = new HashSet<>();
+    public static Graph Kruskal(Graph graph, Vertex start) {
+        PriorityQueue<Edge> que = new PriorityQueue<>((a, b) -> (a.getWeight() - b.getWeight()));
         Graph MST = new Graph(true, false);
-        PriorityQueue<QueueObjectEdge> que = new PriorityQueue<>();
         for (Vertex vertex : graph.getVertices()) {
             MST.addVertex(vertex.getData());
             for (Edge edge : vertex.getEdges())
-                que.offer(new QueueObjectEdge(edge));
+                que.offer(edge);
         }
+        DSU dsu = new DSU(MST);
         while (!que.isEmpty()) {
-            Edge edge = que.poll().edge;
-            Vertex startEdge = MST.getVertex(edge.getStart().getData());
-            Vertex endEdge = MST.getVertex(edge.getEnd().getData());
-            if (!findInComponent(startEdge, endEdge.getData(), visited)) {
-                startEdge.addEdge(endEdge, edge.getWeight());
+            Edge edge = que.poll();
+            Vertex st = MST.getVertex(edge.getStart().getData());
+            Vertex end = MST.getVertex(edge.getEnd().getData());
+            if (dsu.find(st) != dsu.find(end)) {
+                st.addEdge(end, edge.getWeight());
+                dsu.union(st, end);
             }
-            visited.clear();
         }
         return MST;
     }
@@ -730,26 +716,5 @@ public class Grph {
     // }
 
     // Revision
-
-    public static Graph revKruskal(Graph graph, Vertex start) {
-        PriorityQueue<Edge> que = new PriorityQueue<>((a, b) -> (a.getWeight() - b.getWeight()));
-        Graph MST = new Graph(true, false);
-        for (Vertex vertex : graph.getVertices()) {
-            MST.addVertex(vertex.getData());
-            for (Edge edge : vertex.getEdges())
-                que.offer(edge);
-        }
-        DSU dsu = new DSU(MST);
-        while (!que.isEmpty()) {
-            Edge edge = que.poll();
-            Vertex st = MST.getVertex(edge.getStart().getData());
-            Vertex end = MST.getVertex(edge.getEnd().getData());
-            if (dsu.find(st) != dsu.find(end)) {
-                st.addEdge(end, edge.getWeight());
-                dsu.union(st, end);
-            }
-        }
-        return MST;
-    }
 
 }
