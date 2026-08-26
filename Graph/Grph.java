@@ -604,43 +604,40 @@ public class Grph {
     }
 
     // Articulation points
-    // public static ArrayList<Vertex> findArticulation(Graph graph) {
-    // HashMap<Vertex, Integer> disc = new HashMap<>();
-    // HashMap<Vertex, Integer> low = new HashMap<>();
-    // ArrayList<Vertex> sol = new ArrayList<>();
-    // for (Vertex vertex : graph.getVertices()) {
-    // if (disc.containsKey(vertex))
-    // continue;
-    // ArticulationDFS(null, vertex, disc, low, sol);
-    // }
-    // bridgesItr = 0;
-    // return sol;
-    // }
 
-    // private static void ArticulationDFS(Vertex parent, Vertex start,
-    // HashMap<Vertex, Integer> disc,
-    // HashMap<Vertex, Integer> low, ArrayList<Vertex> sol) {
-    // disc.put(start, bridgesItr);
-    // low.put(start, bridgesItr);
-    // bridgesItr++;
-    // int childCount = 0;
-    // for (Edge edge : start.getEdges()) {
-    // Vertex nb = edge.getEnd();
-    // if (!disc.containsKey(nb)) {
-    // childCount++;
-    // ArticulationDFS(start, nb, disc, low, sol);
-    // low.put(start, Math.min(low.get(start), low.get(nb)));
-    // if ((disc.get(start) <= low.get(nb)) && parent != null) {
-    // sol.add(edge.getStart());
-    // }
-    // } else if (disc.containsKey(nb) && nb != parent) {
-    // low.put(start, Math.min(low.get(start), disc.get(nb)));
-    // }
-    // }
-    // if (parent == null && childCount > 1) {
-    // sol.add(start);
-    // }
-    // }
+    public static ArrayList<Vertex> findArticulationPoints(Graph graph) {
+        ArrayList<Vertex> points = new ArrayList<>();
+        HashMap<Vertex, Integer> disc = new HashMap<>();
+        HashMap<Vertex, Integer> low = new HashMap<>();
+        for (Vertex vertex : graph.getVertices()) {
+            if (!disc.containsKey(vertex))
+                articulationDFS(null, vertex, disc, low, points);
+        }
+        tarjanItr = 0;
+        return points;
+    }
+
+    private static void articulationDFS(Vertex parent, Vertex start, HashMap<Vertex, Integer> disc,
+            HashMap<Vertex, Integer> low,
+            ArrayList<Vertex> points) {
+        disc.put(start, tarjanItr);
+        low.put(start, tarjanItr);
+        tarjanItr++;
+        int childCount = 0;
+        for (Edge edge : start.getEdges()) {
+            Vertex nb = edge.getEnd();
+            if (!disc.containsKey(nb)) {
+                childCount++;
+                articulationDFS(start, nb, disc, low, points);
+                low.put(start, Math.min(low.get(start), low.get(nb)));
+                if (disc.get(start) <= low.get(nb) && parent != null)
+                    points.add(start);
+            } else if (nb != parent)
+                low.put(start, Math.min(low.get(start), disc.get(nb)));
+        }
+        if (parent == null && childCount > 1)
+            points.add(start);
+    }
 
     // Create a new clone Graph with added reverse Edges.
     // public static Graph revEdgesGraph(Graph graph, HashMap<Edge, Edge> revMap) {
@@ -728,4 +725,5 @@ public class Grph {
     // }
 
     // Revision
+
 }
