@@ -349,7 +349,6 @@ public class Grph {
     }
 
     // Kruskal
-
     public static Graph Kruskal(Graph graph, Vertex start) {
         PriorityQueue<Edge> que = new PriorityQueue<>((a, b) -> (a.getWeight() - b.getWeight()));
         Graph MST = new Graph(true, false);
@@ -574,78 +573,74 @@ public class Grph {
     }
 
     // Bridges
-    private static int bridgesItr = 0;
-
     public static ArrayList<Edge> findBridges(Graph graph) {
+        ArrayList<Edge> bridges = new ArrayList<>();
         HashMap<Vertex, Integer> disc = new HashMap<>();
         HashMap<Vertex, Integer> low = new HashMap<>();
-        ArrayList<Edge> sol = new ArrayList<>();
         for (Vertex vertex : graph.getVertices()) {
-            if (disc.containsKey(vertex))
-                continue;
-            bridgesItr++;
-            bridgesDFS(null, vertex, sol, disc, low);
+            if (!disc.containsKey(vertex))
+                findBridgesDFS(null, vertex, disc, low, bridges);
         }
-        bridgesItr = 0;
-        return sol;
+        tarjanItr = 0;
+        return bridges;
     }
 
-    private static void bridgesDFS(Vertex parent, Vertex start, ArrayList<Edge> sol,
-            HashMap<Vertex, Integer> disc, HashMap<Vertex, Integer> low) {
-        disc.put(start, bridgesItr);
-        low.put(start, bridgesItr);
-        bridgesItr++;
+    private static void findBridgesDFS(Vertex parent, Vertex start, HashMap<Vertex, Integer> disc,
+            HashMap<Vertex, Integer> low, ArrayList<Edge> bridges) {
+        disc.put(start, tarjanItr);
+        low.put(start, tarjanItr);
+        tarjanItr++;
         for (Edge edge : start.getEdges()) {
             Vertex nb = edge.getEnd();
             if (!disc.containsKey(nb)) {
-                bridgesDFS(start, nb, sol, disc, low);
-                if (low.get(nb) > disc.get(start)) {
-                    sol.add(edge);
+                findBridgesDFS(start, nb, disc, low, bridges);
+                low.put(start, Math.min(low.get(start), low.get(nb)));
+                if (disc.get(start) < low.get(nb)) {
+                    bridges.add(edge);
                 }
-            } else if (disc.containsKey(nb) && nb != parent) {
+            } else if (nb != parent)
                 low.put(start, Math.min(low.get(start), disc.get(nb)));
-            }
         }
     }
 
     // Articulation points
+    // public static ArrayList<Vertex> findArticulation(Graph graph) {
+    // HashMap<Vertex, Integer> disc = new HashMap<>();
+    // HashMap<Vertex, Integer> low = new HashMap<>();
+    // ArrayList<Vertex> sol = new ArrayList<>();
+    // for (Vertex vertex : graph.getVertices()) {
+    // if (disc.containsKey(vertex))
+    // continue;
+    // ArticulationDFS(null, vertex, disc, low, sol);
+    // }
+    // bridgesItr = 0;
+    // return sol;
+    // }
 
-    public static ArrayList<Vertex> findArticulation(Graph graph) {
-        HashMap<Vertex, Integer> disc = new HashMap<>();
-        HashMap<Vertex, Integer> low = new HashMap<>();
-        ArrayList<Vertex> sol = new ArrayList<>();
-        for (Vertex vertex : graph.getVertices()) {
-            if (disc.containsKey(vertex))
-                continue;
-            ArticulationDFS(null, vertex, disc, low, sol);
-        }
-        bridgesItr = 0;
-        return sol;
-    }
-
-    private static void ArticulationDFS(Vertex parent, Vertex start, HashMap<Vertex, Integer> disc,
-            HashMap<Vertex, Integer> low, ArrayList<Vertex> sol) {
-        disc.put(start, bridgesItr);
-        low.put(start, bridgesItr);
-        bridgesItr++;
-        int childCount = 0;
-        for (Edge edge : start.getEdges()) {
-            Vertex nb = edge.getEnd();
-            if (!disc.containsKey(nb)) {
-                childCount++;
-                ArticulationDFS(start, nb, disc, low, sol);
-                low.put(start, Math.min(low.get(start), low.get(nb)));
-                if ((disc.get(start) <= low.get(nb)) && parent != null) {
-                    sol.add(edge.getStart());
-                }
-            } else if (disc.containsKey(nb) && nb != parent) {
-                low.put(start, Math.min(low.get(start), disc.get(nb)));
-            }
-        }
-        if (parent == null && childCount > 1) {
-            sol.add(start);
-        }
-    }
+    // private static void ArticulationDFS(Vertex parent, Vertex start,
+    // HashMap<Vertex, Integer> disc,
+    // HashMap<Vertex, Integer> low, ArrayList<Vertex> sol) {
+    // disc.put(start, bridgesItr);
+    // low.put(start, bridgesItr);
+    // bridgesItr++;
+    // int childCount = 0;
+    // for (Edge edge : start.getEdges()) {
+    // Vertex nb = edge.getEnd();
+    // if (!disc.containsKey(nb)) {
+    // childCount++;
+    // ArticulationDFS(start, nb, disc, low, sol);
+    // low.put(start, Math.min(low.get(start), low.get(nb)));
+    // if ((disc.get(start) <= low.get(nb)) && parent != null) {
+    // sol.add(edge.getStart());
+    // }
+    // } else if (disc.containsKey(nb) && nb != parent) {
+    // low.put(start, Math.min(low.get(start), disc.get(nb)));
+    // }
+    // }
+    // if (parent == null && childCount > 1) {
+    // sol.add(start);
+    // }
+    // }
 
     // Create a new clone Graph with added reverse Edges.
     // public static Graph revEdgesGraph(Graph graph, HashMap<Edge, Edge> revMap) {
