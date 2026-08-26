@@ -507,47 +507,44 @@ public class Grph {
     // tarjan
     private static int tarjanItr = 0;
 
-    public static ArrayList<ArrayList<Vertex>> tarjan(Graph graph) {
+    public static ArrayList<ArrayList<Vertex>> revtarjan(Graph graph) {
+        ArrayList<ArrayList<Vertex>> SCC = new ArrayList<>();
         HashMap<Vertex, Integer> disc = new HashMap<>();
         HashMap<Vertex, Integer> low = new HashMap<>();
-        Deque<Vertex> stack = new ArrayDeque<>();
         HashSet<Vertex> onStack = new HashSet<>();
-        ArrayList<ArrayList<Vertex>> scc = new ArrayList<>();
+        Deque<Vertex> stack = new ArrayDeque<>();
         for (Vertex vertex : graph.getVertices()) {
-            if (disc.containsKey(vertex))
-                continue;
-            tarjanDFS(vertex, disc, low, stack, onStack, scc);
+            if (!disc.containsKey(vertex))
+                tarjanDFS(vertex, disc, low, onStack, stack, SCC);
         }
         tarjanItr = 0;
-        return scc;
+        return SCC;
     }
 
     private static void tarjanDFS(Vertex start, HashMap<Vertex, Integer> disc, HashMap<Vertex, Integer> low,
-            Deque<Vertex> stack, HashSet<Vertex> onStack, ArrayList<ArrayList<Vertex>> scc) {
+            HashSet<Vertex> onStack, Deque<Vertex> stack, ArrayList<ArrayList<Vertex>> SCC) {
         disc.put(start, tarjanItr);
         low.put(start, tarjanItr);
-        tarjanItr++;
         stack.push(start);
         onStack.add(start);
+        tarjanItr++;
         for (Edge edge : start.getEdges()) {
             Vertex nb = edge.getEnd();
             if (!disc.containsKey(nb)) {
-                tarjanDFS(nb, disc, low, stack, onStack, scc);
-                if (onStack.contains(nb)) {
-                    low.put(start, Math.min(low.get(start), low.get(nb)));
-                }
-            } else if (disc.containsKey(nb) && onStack.contains(nb)) {
-                low.put(start, Math.min(low.get(start), disc.get(nb)));
-            }
+                tarjanDFS(nb, disc, low, onStack, stack, SCC);
+                if (onStack.contains(nb))
+                    low.put(start, Math.min(low.get(nb), low.get(start)));
+            } else if (onStack.contains(nb))
+                low.put(start, Math.min(disc.get(nb), low.get(start)));
         }
-        if (low.get(start).equals(disc.get(start))) {
-            ArrayList<Vertex> cc = new ArrayList<>();
-            while (onStack.contains(start)) {
-                Vertex ver = stack.pop();
-                onStack.remove(ver);
-                cc.add(ver);
+        if (disc.get(start).equals(low.get(start))) {
+            ArrayList<Vertex> CC = new ArrayList<>();
+            while (!stack.isEmpty() && onStack.contains(start)) {
+                Vertex rem = stack.poll();
+                CC.add(rem);
+                onStack.remove(rem);
             }
-            scc.add(cc);
+            SCC.add(CC);
         }
     }
 
@@ -736,5 +733,4 @@ public class Grph {
     // }
 
     // Revision
-
 }
